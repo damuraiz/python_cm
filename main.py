@@ -1,4 +1,4 @@
-import core, sys, os, json
+import core, sys, os, json, game
 
 core.log("Запущен консольный менеджер")
 
@@ -79,6 +79,8 @@ else:
                 json.dump(settings, f)
         else:
             show_help(command)
+    elif command == "game":
+        game.game()
     else:
         show_help()
 
