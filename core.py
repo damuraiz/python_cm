@@ -11,7 +11,7 @@ def get_list(only_folder=False):
     if only_folder:
         result=[f for f in result if os.path.isdir(f)]
     log(f"list - {result}")
-    return result
+    return sorted(result)
 
 def create_file(name, text=None):
     log(f"create_file (name={name}, text={text})")
@@ -52,7 +52,7 @@ def copy_file(name, new_name):
     except FileNotFoundError:
         log(f"Файл/Папка {name} не найдена")
     except FileExistsError:
-        log(f"Файл/Папка {name} уже существует")
+        log(f"Файл/Папка {new_name} уже существует")
     else:
         log(f"Файл/Папка {name} успешно скопирована с новым именем {new_name}")
 
