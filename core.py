@@ -5,9 +5,12 @@ def log(message):
         f.write(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S,%f')} - {message}\n")
         print(message)
 
-def get_list(only_folder=False):
-    log(f"list (only_folder={only_folder})")
-    result = os.listdir()
+def get_list(only_folder=False, custom_path = None):
+    log(f"list (only_folder={only_folder}, custom_path = {custom_path})")
+    if not custom_path:
+        result = os.listdir()
+    else:
+        result = os.listdir(custom_path)
     if only_folder:
         result=[f for f in result if os.path.isdir(f)]
     log(f"list - {result}")

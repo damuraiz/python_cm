@@ -1,4 +1,4 @@
-import core, sys
+import core, sys, os, json
 
 core.log("Запущен консольный менеджер")
 
@@ -20,6 +20,14 @@ def show_help(command=None):
         core.log(f"Файл помощи для команды {command} не найден! {e}")
 
 
+print("=" * 100)
+if not os.path.exists("settings.json"):
+    with open("settings.json", "w", encoding="utf-8") as f:
+        json.dump({"current_path": "."}, f)
+
+with open("settings.json", "r", encoding="utf-8") as f:
+    settings = json.load(f)
+
 try:
     command = sys.argv[1]
 except IndexError:
@@ -30,38 +38,47 @@ else:
     elif command == "list":
         if len(sys.argv) > 2:
             if sys.argv[2] == 'od' or sys.argv[2] == 'only_directory':
-                for file in core.get_list(True):
+                for file in core.get_list(only_folder=True, custom_path=None if settings["current_path"]=='.' else settings["current_path"]):
                     print(file)
             else:
                 show_help(command)
         else:
-            for file in core.get_list():
+            for file in core.get_list(custom_path=None if settings["current_path"]=='.' else settings["current_path"]):
                 print(file)
     elif command == "copy":
         if len(sys.argv) > 3:
-            core.copy_file(sys.argv[2], sys.argv[3])
+            name = os.path.join(settings["current_path"], sys.argv[2])
+            new_name = os.path.join(settings["current_path"], sys.argv[3])
+            core.copy_file(name, new_name)
         else:
             show_help(command)
     elif command == "delete":
-        if len(sys.argv) > 2 and sys.argv[2]!='help':
-            core.delete_file(sys.argv[2])
+        if len(sys.argv) > 2 and sys.argv[2] != 'help':
+            core.delete_file(os.path.join(settings["current_path"], sys.argv[2]))
         else:
             show_help(command)
     elif command == "mkdir":
         if len(sys.argv) > 2:
-            if sys.argv[2]!='help':
-                core.create_folder(sys.argv[2])
+            if sys.argv[2] != 'help':
+                core.create_folder(os.path.join(settings["current_path"], sys.argv[2]))
             else:
                 show_help(command)
     elif command == "mkfile":
         if len(sys.argv) > 2:
-            if sys.argv[2]!='help':
+            if sys.argv[2] != 'help':
                 if len(sys.argv) > 3:
-                    core.create_file(sys.argv[2], sys.argv[3])
+                    core.create_file(os.path.join(settings["current_path"], sys.argv[2]), sys.argv[3])
                 else:
-                    core.create_file(sys.argv[2])
+                    core.create_file(os.path.join(settings["current_path"], sys.argv[2]))
             else:
                 show_help(command)
+    elif command == "chgdir":
+        if len(sys.argv) > 2 and sys.argv[2] != 'help' and os.path.isdir(sys.argv[2]):
+            settings["current_path"]= sys.argv[2]
+            with open("settings.json", "w", encoding="utf-8") as f:
+                json.dump(settings, f)
+        else:
+            show_help(command)
     else:
         show_help()
 
